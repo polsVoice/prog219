@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>triggerDemo</title>
+	<style>
+		#switcher {
+			width: 100px;
+			height: 100px;
+			background-color: steelblue;
+		}
+	</style> 
+	<script src="js/jquery-1.11.0.min.js"></script>
+	<script>
+		$(document).ready( function(){
+
+			$('button').click( function() {
+
+				$('#switcher').toggle();
+			});
+
+		});	 // end ready
+		
+		$(document).ready( function(){
+
+			$('button').trigger('click');
+
+		});	 // end ready
+	</script> 
+</head>
+
+<body>
+	<button>Click to toggle the div</button><br><br>
+	<div id="switcher"></div>
+</body>
+</html>

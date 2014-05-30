@@ -1,0 +1,47 @@
+body
+{
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+ul
+{
+	display: none;
+}
+
+h1
+{
+	font-size: 2em;
+	color: blue;
+}
+
+h2
+{
+	font-size: 1.5em;
+}
+
+h1, h2
+{
+	margin-left: 3em;
+}
+
+button
+{
+	padding: 1em;
+	font-size: 1.25em;
+}
+
+#container
+{
+	height: 400px;
+	width: 425px;
+	padding: 2%;
+	border: 5px solid blue;
+	border-radius: 15px;
+	margin-left: 2%;
+}
+
+#controls
+{
+	margin-left: 10%;
+	padding-top: 1%;
+}

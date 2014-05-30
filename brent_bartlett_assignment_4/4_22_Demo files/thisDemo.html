@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Using 'this' keyword</title>
+	<script src="js/jquery-1.11.0.min.js"></script>
+	<script>
+		$(document).ready( function(){
+			$('div').each( function() {
+				var getID = $(this).attr("id");
+				console.log( this.getAttribute("id") );
+				$('footer').append('<p>' + getID + '<p>');
+			});  // end each
+		});	 // end ready
+	</script> 
+</head>
+
+<body>
+	<div id="one">Content of div 1</div>
+	<div id="two">Content of div 2</div>
+	<div id="three">Content of div 3</div>
+	<footer></footer>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>FancyBox -- Basic Exercise</title>
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/site.css">
+	<link rel="stylesheet" href="fancyBox/jquery.fancybox.css">
+	<script src="js/jquery-1.11.0.min.js"></script>
+	<script src="fancyBox/jquery.fancybox.pack.js"></script>
+	<script>
+		$(document).ready(function() {
+			// plugin function goes here
+			$( ".fancybox" ).fancybox();
+		});
+	</script>
+</head>
+
+<body>
+	<div id="content">
+		<h1>FancyBox</h1>
+		<!-- container for image list goes here -->
+		<ul>
+			<!-- <a class="fancybox" rel="group" href="images/1Smoothies.jpg"><img src="images/1thumbSmoothies.jpg" alt="" /></a> -->
+			<li><a class="fancybox" rel="group" href="images/1Smoothies.jpg"><img src="images/1thumbSmoothies.jpg" alt="" /></a></li>
+			<li><a class="fancybox" rel="group" href="images/2Burger.jpg"><img src="images/2thumbBurger.jpg" alt="" /></a></li>
+			<li><a class="fancybox" rel="group" href="images/3Berries.jpg"><img src="images/3thumbBerries.jpg" alt="" /></a></li>
+			<li><a class="fancybox" rel="group" href="images/4Seafood.jpg"><img src="images/4thumbSeafood.jpg" alt="" /></a></li>
+			<li><a class="fancybox" rel="group" href="images/5IceCream.jpg"><img src="images/5thumbIceCream.jpg" alt="" /></a></li>
+		</ul>
+	</div>
+</body>
+</html>

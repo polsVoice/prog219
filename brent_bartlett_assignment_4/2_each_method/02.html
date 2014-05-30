@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Acting on Each Element in a Selection</title>
+	<link href="css/reset.css" rel="stylesheet">
+	<link href="css/site.css" rel="stylesheet">
+	<script src="jquery-1.11.0.min.js"></script>
+	<script src="02.js"></script>
+
+</head>
+<body>
+	<div id="content">
+		<h1>Acting on Each Element in a Selection</h1>
+		Exercise:
+		<ol>
+			<li>Retrieve all links that point outside this website (i.e, "http://...")</li>
+			<li>Get the HREF attribute of each link (the URL)</li>
+			<li>Add that URL to the bibliography box at the bottom</li>
+		</ol>
+		<hr>
+		<section>
+			<h2>Website Bucket List: A Dynamically Created Bibliography</h2>
+			<p>A list of great websites to visit before you die:</p>
+			<ul>
+				<li><a href="http://www.miketackett.com">Mike Tackett Toons</a></li>
+				<li><a href="http://www.austinamandes.com">Austin Amandes Auteurs</a></li>
+				<li><a href="www.urlToNowhere.com">At the end of the internet</a></li>
+				<li><a href="http://jquery.com">The mother of all jQuery sites</a></li>
+				<li><a href="folderToNowhere/fileToNowhere.html">Another dead-end script</a></li>
+				<li><a href="http://www.jetbrains.com/webstorm/">Webstorm: A pretty cool JS IDE</a></li>
+
+
+			</ul><br>
+			<p>Last but not least, you'll never forget the culture-shaping influence of <a href="http://www.hampsterdance.com/">Hampster Dance.</a></p>		
+		</section>
+		<footer id="bibliography">
+			<h3>External links referenced in this page:</h3>
+			<ul id="bibList"></ul>
+		</footer>
+
+	</div>
+</body>
+</html>

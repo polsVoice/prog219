@@ -1,0 +1,22 @@
+body
+{
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+ul
+{
+	border: 5px solid blue;
+	border-radius: 15px;
+}
+
+li
+{
+	display: inline;
+}
+
+img
+{
+	padding: 2% .5%;
+	width: 350px;
+	height: 300px;
+}
