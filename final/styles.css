@@ -7,4 +7,10 @@ form
 {
 	background-color: cyan;
 	width: 50%;
+	height: 20%;
+}
+
+button
+{
+	padding: 1%;
 }

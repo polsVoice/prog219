@@ -26,11 +26,13 @@ var seed = {
 		$( "#retrieve" ).click( seed.output );
 		$( "#clear" ).click( seed.clear );
 		$( "#back, #forward" ).click( seed.navigate );
+		
+		seed.readStorage();
+		$( "body" ).prepend( "<div id='task'></div>" );
+		$( "#task" ).append( "<p>" + seed.array[ seed.ctr ].task + " &ndash; " + seed.array[ seed.ctr ].date + "</p>" );
 	},
 	input: function()
-	{
-		seed.taskNum++;
-		
+	{		
 		var newTask = Object.create( seed.taskObj );
 		newTask.task = $( "#input" ).val();
 		newTask.date = seed.getISODate();
@@ -41,22 +43,16 @@ var seed = {
 		$( "#input" ).val( "" );
 		console.log( seed.taskNum );
 		localStorage.setItem( "taskNum", seed.taskNum );
+		seed.taskNum++;
+		$( "#input" ).focus();
 	},
 	navigate: function()
 	{	
-		var taskObj = 0;
+		if( !seed.array[ 0 ] )
+		{
+			seed.readStorage();
+		}
 		var btnId = this.id;
-		
-		if( $( "#task" ) )
-		{
-			$( "#task" ).remove();
-		}
-		if( localStorage.taskNum )
-		{
-			seed.taskNum = localStorage.getItem( "taskNum" );
-		}
-		$( "body" ).prepend( "<div id='task'></div>" );
-		console.log( seed.taskNum );
 		
 		if( btnId === "forward" )
 		{
@@ -67,30 +63,37 @@ var seed = {
 			seed.ctr--;
 		}
 		
-		if( !localStorage.getItem( seed.ctr ) && btnId === "forward" )
+		if( seed.ctr >	seed.taskNum )
 		{
 			seed.ctr = 0;
 		}
 		if( seed.ctr < 0 )
+		{
 			seed.ctr = seed.taskNum;
-		console.log( "seed.ctr is " + seed.ctr );
-		
-		taskObj = JSON.parse( localStorage.getItem( seed.ctr ) );		
-		$( "#task" ).append( "<p>" + taskObj.task + " &ndash; " + taskObj.date + "</p>" );
-	
-		//$( "#task" ).append( "<p>" + seed.array[ seed.ctr ].task + " &ndash; " + seed.array[ seed.ctr ].date + "</p>" );
+		}
+		if( $( "#task" ) )
+		{
+			$( "#task" ).hide( "slide", {direction: "left"}, 1000 );
+		}
+		$( "body" ).prepend( "<div id='task'></div>" );
+		$( "#task" ).append( "<p>" + seed.array[ seed.ctr ].task + " &ndash; " + seed.array[ seed.ctr ].date + "</p>" );
+		console.log( "seed.ctr is " + seed.ctr );		
 	},
 	readStorage: function()
 	{
+		var taskObj = 0;
 		for( var i = 0; i <= seed.taskNum; i++ )
 		{
-			seed.array.push( JSON.parse( localStorage.getItem( i ) ) );
+			taskObj = JSON.parse( localStorage.getItem( i ) );
+			console.log( taskObj );
+			seed.array.push( taskObj );
 		}
 	},
 	clear: function()
 	{
 		localStorage.clear();
-		$( "#output" ).html( "" );
+		seed.ctr = 0;
+		seed.taskNum = 0;
 		if( $( "#task" ) )
 		{
 			$( "#task" ).remove();
