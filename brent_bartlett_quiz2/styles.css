@@ -1,6 +1,6 @@
 fieldset
 {
-	width: 70%;
+	width: 50%;
 }
 
 legend
@@ -10,8 +10,6 @@ legend
 
 button
 {
-	position: absolute;
-	top: 400px;
 	padding: 1em;
 	font-size: 1.25em;
 }
@@ -45,10 +43,8 @@ label + input
 
 #radioContainer
 {
-/*
 	float: right;
 	position: relative;
 	top: 10em;
 	right: 10em;
-	*/
 }

@@ -1,6 +1,7 @@
 var quiz = {
 	ctr: 0,
-	score: 0,
+	correct: 0,
+	incorrect: 0,
 	questionArray: [ 'Who created jQuery?'
 					, 'What does "CDN" stand for?'
 					, 'Which jQuery method is used to take elements off the end of an array?'
@@ -34,7 +35,6 @@ var quiz = {
 				, "sea_man.png" ],
 	init: function()
 	{
-		$( "#submit" ).click( quiz.next );
 		$( "<fieldset></fieldset>" ).appendTo( "form" );
 		$( "fieldset" ).append( "<legend>" + ( quiz.ctr + 1 ) + ". " + quiz.questionArray[ quiz.ctr ] + "</legend>" );
 		$( "legend" ).after( "<img src='img/" + quiz.images[ quiz.ctr ] + "' alt='' />" );
@@ -44,17 +44,20 @@ var quiz = {
 			var radios = "";
 			for( var i = 0; i < 3; i++ )
 			{
-				radios += "<input type='radio' name='q' value='" + i 
-								+ "' /><label for=''>" + quiz.answerArray[ quiz.ctr ][ i ] + "</label>";
+				radios += "<input type='radio' id='rad" + i + "' name='q' value='" + i 
+								+ "' /><label for='rad" + i + "'>" 
+								+ quiz.answerArray[ quiz.ctr ][ i ] + "</label>";
 			}
 			return radios;
 		} );
-
+		$( "<button type='button' id='submit'>Submit</button>" ).appendTo( "form" );
+		$( "#submit" ).click( quiz.next );
 	},
 	next: function()
 	{
 		if( !$( "input[name=q]:checked" ).val() )
 		{
+			$( "#submit" ).before( "<p id='error'></p>" );
 			$( "#error" ).html( "You must make a selection to continue" );
 			$( "#error" ).css( "display", "block" );
 		}
@@ -63,8 +66,11 @@ var quiz = {
 			// Does the value of the checked button equal the value in the answer key?
 			if( $( "input[name=q]:checked" ).val() == quiz.answerKey[ quiz.ctr ] )
 			{
-				quiz.score++;
-				console.log( quiz.score );
+				quiz.correct++;
+			}
+			else
+			{
+				quiz.incorrect++;
 			}
 			quiz.ctr++;
 			if( quiz.ctr >= quiz.questionArray.length )
@@ -75,12 +81,21 @@ var quiz = {
 			else
 			{
 				$( ":radio" ).prop( "checked", false );
-				$( "img" ).attr( "src", "img/" + quiz.images[ quiz.ctr ] );
-				$( "legend" ).html( ( quiz.ctr+1 ) + ". " + quiz.questionArray[ quiz.ctr ] );
-				$( "label" ).each( function( index )
-				{
-					$( this ).html( quiz.answerArray[ quiz.ctr ][ index ] );
-				} );
+				$( "img" ).animate( {
+						opacity: 0
+					}, 1000, function()
+					{
+						$( this ).attr( "src", "img/" + quiz.images[ quiz.ctr ] );
+						$( this ).animate( {
+							opacity: 1
+						}, 1000 );
+
+						$( "legend" ).html( ( quiz.ctr+1 ) + ". " + quiz.questionArray[ quiz.ctr ] );
+						$( "label" ).each( function( index )
+						{
+							$( this ).html( quiz.answerArray[ quiz.ctr ][ index ] );
+						} );
+					});
 			}
 			$( "#error" ).css( "display", "none" );
 		}
@@ -92,7 +107,10 @@ var quiz = {
 		$( "label" ).remove();
 		$( "img" ).remove();
 		$( "button" ).remove();
-		$( "<h1>The quiz is completed! Your score is " + quiz.score + "</h1>" ).appendTo( "form" );
+		$( "fieldset" ).remove();
+		$( "<h1>The quiz is completed! You got " + quiz.correct + " correct, and " 
+			+ quiz.incorrect + " incorrect.</h1>" ).appendTo( "form" );
+		
 	}
 };
 quiz.init();
