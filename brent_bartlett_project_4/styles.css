@@ -1,0 +1,50 @@
+fieldset
+{
+	width: 50%;
+}
+
+legend
+{
+	font-size: 1.5em;
+}
+
+button
+{
+	padding: 1em;
+	font-size: 1.25em;
+}
+
+input[type=radio]
+{
+	float: left;
+	vertical-align: middle;
+}
+
+label
+{
+	float: left;
+	margin-bottom: .5em;
+	font-size: 1.25em;
+}
+
+label + input
+{
+	clear: both;
+}
+
+#error
+{
+	color: red;
+	border: 1px solid black;
+	display: none;
+	width: 50%;
+	padding: .5%;
+}
+
+#radioContainer
+{
+	float: right;
+	position: relative;
+	top: 10em;
+	right: 10em;
+}

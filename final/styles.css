@@ -1,14 +1,17 @@
 form
 {
-	margin: 30% 0 0 30%;
+	margin: 20% 0 0 30%;
 }
 
 #task
 {
 	background-color: cyan;
-	width: 30%;
+	width: 50%;
 	height: 10%;
 	position: relative;
+	border: 1px solid black;
+	border-radius: 10px;
+	margin: 5%;
 }
 
 button
@@ -20,4 +23,16 @@ input[type=checkbox]
 {
 	width: 20px;
 	height: 20px;
+}
+
+#runner
+{
+	margin-left: 5%;
+	padding: 1em;
+}
+
+#timerArrow
+{
+	padding: 1%;
+	margin-left: 2%;
 }
