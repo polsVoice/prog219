@@ -3,11 +3,13 @@ var seed = {
 	ctr: 0,		// counter for task numbers
 	array: [],	// array to store tasks retrieved from localStorage
 	store: "",
+	forward: true,
 	taskObj: {
 		taskNum: "",
 		task: "",
-		date: "",
-		duration: 0
+		createdDate: "",
+		duration: "",
+		dueDate: ""
 	},
 	init: function()
 	{
@@ -22,6 +24,13 @@ var seed = {
 		}
 		
 		$( "#submit" ).click( seed.input );
+		$( "#input" ).keypress( function( e )
+		{
+			if( e.which === 13 )
+			{
+				seed.input();
+			}
+		} );
 		$( "#retrieve" ).click( seed.output );
 		$( "#clear" ).click( seed.clear );
 		$( "#back, #forward" ).click( seed.navigate );
@@ -30,8 +39,10 @@ var seed = {
 		$( document ).on( "keydown", function( event )
 		{
 			var keyCode = ( event.keyCode ? event.keyCode : event.which );
-			if( keyCode === 37 )
+			$( "body" ).data( "source", keyCode );
+			if( keyCode === 37 || keyCode === 39 )
 			{
+				seed.navigate();
 			}
 		} );
 		
@@ -40,44 +51,71 @@ var seed = {
 		seed.taskDiv();
 	},
 	input: function()
-	{		
-		var newTask = Object.create( seed.taskObj );
-		newTask.taskNum = seed.taskNum;
-		newTask.task = $( "#input" ).val();
-		newTask.date = seed.getISODate();
-		
-		console.log( "inserting task number " + seed.taskNum + " into localStorage" );
-		// localStorage.setItem( seed.taskNum, JSON.stringify( newTask ) );
-		seed.store.set( seed.taskNum, newTask );
-		$( "#input" ).val( "" );
-		console.log( seed.taskNum );
-		seed.array.push( newTask );
-		seed.taskNum++;
-		$( "#input" ).focus();
+	{
+		if( $( "#input").val() )
+		{
+			var newTask = Object.create( seed.taskObj );
+			newTask.taskNum = seed.taskNum;
+			newTask.task = $( "#input" ).val();
+			newTask.createdDate = seed.getISODate();
+			newTask.duration = "00:00:00";
+			newTask.dueDate = "0000-00-00";
+			
+			console.log( "inserting task number " + seed.taskNum + " into localStorage" );
+			// localStorage.setItem( seed.taskNum, JSON.stringify( newTask ) );
+			seed.store.set( seed.taskNum, newTask );
+			$( "#input" ).val( "" );
+			console.log( seed.taskNum );
+			seed.array.push( newTask );
+			
+			seed.taskNum++;
+			$( "#input" ).focus();
+			seed.ctr = seed.array.length-1;
+			console.log( "seed.ctr is " + seed.ctr );
+			seed.taskDiv();
+		}
 	},
 	navigate: function()
 	{
+		seed.stopTimer();
+		
 		var btnId = this.id;
+		
+		if( $( "#datepicker" ).val() )
+		{
+			var index = seed.array[ seed.ctr ].taskNum;
+			seed.array[ seed.ctr ].dueDate = $( "#datepicker" ).val();
+			seed.store.set( index + ".dueDate", $( "#datepicker" ).val() );
+			console.log( "datepicker val is " + $( "#datepicker" ).val() );
+		}
 		
 		if( $( "#delete" ).is( ":checked" ) )
 		{
 			console.log( "Removing item " + seed.array[ seed.ctr ].taskNum + " from localStorage" );
-			localStorage.removeItem( seed.array[ seed.ctr ].taskNum );
+			seed.store.remove( seed.array[ seed.ctr ].taskNum );
+			
+			// array moves down
 			seed.array.splice( seed.ctr, 1 );
-			if( btnId === "back" )
+			
+			// back button or left arrow key
+			if( btnId === "back" || $( "body" ).data( "source" ) === 37 )
 			{
+				seed.forward = false;
 				seed.ctr--;
 			}
-			console.log( "after deletion, seed.ctr is " + seed.ctr );
+			// console.log( "after deletion, seed.ctr is " + seed.ctr );
 		}
 		else
 		{
-			if( btnId === "forward" )
+			// forward button or right arrow key
+			if( btnId === "forward" || $( "body" ).data( "source" ) === 39 )
 			{
+				seed.forward = true;
 				seed.ctr++;
 			}
 			else
 			{
+				seed.forward = false;
 				seed.ctr--;
 			}
 		}
@@ -91,18 +129,30 @@ var seed = {
 			seed.ctr = seed.array.length-1;
 		}
 		console.log( "now seed.ctr is " + seed.ctr );
-		
+
 		seed.taskDiv();
+		$( "body" ).data( "source", 0 );
 	},
 	taskDiv: function()
 	{
+		
+		if( seed.forward )
+		{
+			setDirection = "left";
+		}
+		else
+		{
+			setDirection = "right";
+		}
+		
 		if( $( "#task" ).length )
 		{
-			$( "#task" ).hide( "slide", {direction: "left"}, 500, function()
+			$( "#task" ).hide( "slide", {direction: setDirection}, 400, function()
 			{
 				$( "#task" ).html( "" );
 				seed.taskDisplay();
-				$( "#task" ).show( "slide", {direction: "left"}, 500);
+				setDirection === "left" ? setDirection = "right" : setDirection = "left";
+				$( "#task" ).show( "slide", {direction: setDirection}, 400 );
 			} );
 		}
 		else
@@ -116,15 +166,23 @@ var seed = {
 		if( seed.array.length )
 		{
 			$( "#task" ).append( "<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task 
-								+ " &ndash; " + seed.array[ seed.ctr ].date + " # " + seed.array[seed.ctr ].taskNum 
-								+ "</p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span>" );
-			console.log( seed.array[ seed.ctr ].duration );
-								
+								+ "</p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate );
+			
+			//console.log( "dueDate is " + seed.array[ seed.ctr ].dueDate );
+			$( "#datepicker" ).val( seed.array[ seed.ctr ].dueDate );
+
 			// icon from http://openiconlibrary.sourceforge.net/
 			// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
+			var duration = seed.array[ seed.ctr ].duration;
+			// console.log( "Duration is " + duration );
+			var start = seed.stringToMilliseconds( duration );
+			// console.log( "start is " + start );
 			
 			$( "#runner" ).runner({
 				milliseconds: false,
+				startAt: start,
+				// 99:59:59
+				stopAt: 356813000,
 				format: function millisecondsToString(milliseconds) 
 				{
 					var oneHour = 3600000;
@@ -176,6 +234,9 @@ var seed = {
                                   
 			});
 			$( "#timerArrow" ).toggleFunc( seed.startTimer, seed.stopTimer );
+			$( "#datepicker" ).datepicker( {
+				dateFormat: "yy-mm-dd"
+			} );
 		}
 	},
 	startTimer: function()
@@ -188,9 +249,15 @@ var seed = {
 	},
 	stopTimer: function()
 	{
+		var index = "";
 		$( "#runner" ).runner( "stop" );
 		$( "#timerArrow" ).attr( "src", "img/arrow-right.png" );
-		seed.array[ seed.ctr ].duration = $( "#runner" ).html();
+		if( seed.array.length )
+		{
+			seed.array[ seed.ctr ].duration = $( "#runner" ).html();
+			index = seed.array[ seed.ctr ].taskNum;
+			seed.store.set( index + ".duration", $( "#runner" ).html() );
+		}
 	},
 	readStorage: function()
 	{
@@ -200,15 +267,21 @@ var seed = {
 			console.log( key );
 		}
 		console.log( "localStorage.length is " + localStorage.length );
-		for( var i = 0, ii = localStorage.length; i <= ii; i++ )
+		for( var i = 0; seed.array.length !== localStorage.length; i++ )
 		{
-			console.log( "i is " + i );
-			taskObj = localStorage.getItem( i );
+			taskObj = seed.store.get( i );
 			if( taskObj !== null )
 			{
-				taskObj = JSON.parse( taskObj );
 				taskObj.taskNum = i;
+				console.log( "Duration for this task is " + taskObj.duration );
 				console.log( taskObj );
+				/*
+				if( taskObj.dueDate - seed.getISODate() > 3 * 86400 * 1000 )
+				{
+					console.log( "Stuff is due, yo" );
+					//$( "#reminder" ).html( "One or more tasks is due in 3 days or less!" );
+				}
+				*/
 				seed.array.push( taskObj );
 				console.log( "Item " + i + " retrieved" );
 			}
@@ -221,6 +294,10 @@ var seed = {
 	},
 	clear: function()
 	{
+		while( seed.array.length > 0 )
+		{
+			seed.array.pop();
+		}
 		localStorage.clear();
 		seed.ctr = 0;
 		seed.taskNum = 0;
@@ -228,6 +305,21 @@ var seed = {
 		{
 			$( "#task" ).remove();
 		}
+	},
+	stringToMilliseconds: function( theString )
+	{
+		var theArray = theString.split( ":" );
+		var total = 0, multiplier = 3600000;
+		$( theArray ).each( function( i, val )
+		{
+			if( val > 0 )
+			{
+				total += val * multiplier;
+			}
+			multiplier /= 60;
+		} );
+		console.log( "Number of milliseconds is " + total );
+		return total;
 	},
 	getISODate: function()
 	{
