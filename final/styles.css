@@ -1,6 +1,14 @@
+body
+{
+	background-color: #71E5B9;
+}
+
 form
 {
-	margin: 20% 0 0 30%;
+	position: absolute;
+	width: 50%;
+	top: 50%;
+	left: 30%;
 }
 
 #task
@@ -8,10 +16,25 @@ form
 	background-color: cyan;
 	width: 50%;
 	height: 10%;
+	left: 10%;
 	position: relative;
 	border: 1px solid black;
 	border-radius: 10px;
-	margin: 5%;
+	padding: 0 2%;
+}
+
+#task span
+{
+}
+
+#controls
+{
+	border: 1px solid black;
+	border-radius: 10px;
+	position: absolute;
+	left: 5%;
+	width: 70%;
+	padding: 2%;
 }
 
 button
@@ -33,6 +56,16 @@ input[type=checkbox]
 
 #timerArrow
 {
-	padding: 1%;
 	margin-left: 2%;
+}
+
+.overdue
+{
+	color: red;
+	font-weight: bold;
+}
+
+.upcoming
+{
+	background-color: #f54b5f;
 }
