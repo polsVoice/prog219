@@ -1,37 +1,20 @@
-/* .seed. uses the following third-party libraries: 
- * JQuery Storage API - https://github.com/julien-maurel/jQuery-Storage-API
- * jQuery Runner - https://github.com/jylauril/jquery-runner
- * Date.js - http://www.datejs.com/
- */
-
+require( {
+	"packages": [ { "name": "ydn", "location": ".", "main": "ydn.db-iswu-core-e-qry-dev" } ] });
 
 var seed = {
-	taskNum: 0,	// index of last item in localStorage
-	ctr: 0,		// counter for task numbers
-	array: [],	// array to store tasks retrieved from localStorage
-	store: "",
-	forward: true,
-	taskObj: {
-		taskNum: "",
-		task: "",
-		createdDate: "",
-		duration: "",
-		dueDate: "",
-		deadline: ""
+	schema: {
+		stores: [ {
+			name: "active",  // store definition
+			keyPath: "taskID"
+		} ]
 	},
+	db: "",
+	array: [],
+	forward: true,
+	ctr: 0,
 	init: function()
-	{
-		'use strict';
-		if( typeof( Storage ) !== "undefined" )
-		{
-			seed.store = $.localStorage;
-		}
-		else
-		{
-			$( "#reminder" ).html( "Sorry! .seed. requires localStorage to operate.<br /> Please use a compatible browser.<br /> Browsers that support localStorage include Firefox 3.5+, Chrome 4.0+, Safari 4.0+, Opera 10.5+, and IE 8.0+." );
-		}
-		
-		// Save task
+	{	
+		seed.db = new ydn.db.Storage( "seedDB", seed.schema );
 		$( "#submit" ).click( seed.input );
 		$( "#input" ).keypress( function( e )
 		{
@@ -41,117 +24,110 @@ var seed = {
 				seed.input();
 			}
 		} );
-		
-		// Delete contents of localStorage
-		$( "#clear" ).click( seed.clear );
+		$( "#retrieve" ).click( function()
+		{
+			
+		} );
+		//~ $( "#clear" ).click( seed.clear );
 		$( "#back, #forward" ).click( seed.navigate );
 		
 		// random task
-		$( "#random" ).click( seed.random );
+		//~ $( "#random" ).click( seed.random );
 		
 		// Keyboard navigation: left arrow is back, right arrow is forward
-		$( document ).on( "keydown", function( event )
-		{
-			var keyCode = event.which;
-			$( "body" ).data( "source", keyCode );
-			if( keyCode === 37 || keyCode === 39 )
-			{
-				seed.navigate();
-			}
-		} );
+		//~ $( document ).on( "keydown", function( event )
+		//~ {
+			//~ var keyCode = event.which;
+			//~ $( "body" ).data( "source", keyCode );
+			//~ if( keyCode === 37 || keyCode === 39 )
+			//~ {
+				//~ seed.navigate();
+			//~ }
+		//~ } );
 		
 		$( "#input" ).focus();
-		seed.readStorage();
-		seed.taskDiv();
+		seed.readStorage( seed.array, function( array )
+		{
+			seed.dueDateSort( array );
+			seed.taskDiv();
+		} );
 	},
 	input: function()
 	{
 		'use strict';
-		if( $( "#input").val() )
-		{
-			var newTask = Object.create( seed.taskObj );
-			newTask.taskNum = seed.taskNum;
-			newTask.task = $( "#input" ).val();
-			newTask.createdDate = seed.getISODate();
-			newTask.duration = "00:00:00";
-			newTask.dueDate = "0000-00-00";
-			newTask.deadline = "false";
 			
-			console.log( "inserting task number " + seed.taskNum + " into localStorage" );
-			seed.store.set( seed.taskNum, newTask );
+		var task = $( "#input" ).val();
+		if( task )
+		{
+			var newTask = {
+				taskID: new Date().getTime(),
+				task: task,
+				createdDate: seed.getISODate(),
+				duration: "00:00:00",
+				dueDate: "0000-00-00",
+				deadline: "false"
+			};
+			
+			//~ console.log( "inserting task number " + seed.taskNum + " into localStorage" );
+			console.log( newTask );
+			//~ seed.store.set( seed.taskNum, newTask );
+			var req = seed.db.put( { name: "active" }, newTask );
+			req.done( function( key )
+			{
+				console.log( key );
+			} );
+			req.fail( function( e )
+			{
+				throw e;
+			} );
 			$( "#input" ).val( "" );
-			console.log( seed.taskNum );
-			seed.array.push( newTask );
+			//~ seed.array.push( newTask );
 			
-			seed.taskNum++;
+			//~ seed.taskNum++;
 			$( "#input" ).focus();
-			seed.ctr = seed.array.length-1;
-			console.log( "seed.ctr is " + seed.ctr );
-			seed.taskDiv();
+			//~ seed.ctr = seed.array.length-1;
+			//~ console.log( "seed.ctr is " + seed.ctr );
+			//~ seed.taskDiv();
 		}
 	},
-	navigate: function()
+	readStorage: function( array, callback )
 	{
-		'use strict';
-		seed.stopTimer();
-		
-		var btnId = this.id;
-		var index = null;
-		
-		if( $( "#delete" ).is( ":checked" ) )
+		"use strict";
+		seed.db.values( "active" ).done( function( records )
 		{
-			index = seed.array[ seed.ctr ].taskNum;
-			console.log( "Marking " + index + " as completed" );
-			
-			seed.store.remove( index );
-			
-			// array moves down
-			seed.array.splice( seed.ctr, 1 );
-			
-			// back button or left arrow key
-			if( btnId === "back" || $( "body" ).data( "source" ) === 37 )
+			var len = records.length;
+			for( var i = 0; i < len; i++ )
 			{
-				// When splicing from an array, the elements will move down, and the current index
-				// will be pointing at the previously next element. So, the counter doesn't need to
-				// be incremented after a splice.
-				seed.forward = false;
-				seed.ctr--;
+				array.push( records[ i ] );
 			}
-		}
-		else
-		{
-			// forward button or right arrow key
-			if( btnId === "forward" || $( "body" ).data( "source" ) === 39 )
-			{
-				seed.forward = true;
-				seed.ctr++;
-			}
-			else
-			{
-				// If all else fails, go back. I think it's a good idea to have a default case,
-				// although I don't see how this code would ever be run.
-				seed.forward = false;
-				seed.ctr--;
-			}
-		}
-		
-		if( seed.ctr >=	seed.array.length )
-		{
-			seed.ctr = 0;
-		}
-		if( seed.ctr < 0 )
-		{
-			seed.ctr = seed.array.length-1;
-		}
-
-		seed.taskDiv();
-		$( "body" ).data( "source", 0 );
+			callback( array );
+		} );
 	},
-	random: function()
+	dueDateSort: function( array )
 	{
 		'use strict';
-		seed.ctr = 1 + Math.floor( Math.random() * seed.array.length-1 );
-		seed.taskDiv();
+		
+		// bubble sort adapted from 
+		// http://www.contentedcoder.com/2012/09/bubble-sort-algorithm-in-javascript.html
+		var len = array.length-1, isSwap = true;
+		for( var i = 0; i < len; i++ )
+		{
+			isSwap = false;
+			for( var j = 0, swap, lastIndex = len - i; j < lastIndex; j++ )
+			{
+				if( Date.parse( array[ j ].dueDate ) > Date.parse( array[ j+1 ].dueDate ) )
+				{
+					swap = array[ j ];
+					array[ j ] = array[ j+1 ];
+					array[ j+1 ] = swap;
+					isSwap = true;
+				}
+			}
+			if( !isSwap )
+			{
+				break;
+			}
+		}
 	},
 	taskDiv: function()
 	{
@@ -270,106 +246,15 @@ var seed = {
 				{
 					var index = seed.array[ seed.ctr ].taskNum;
 					seed.array[ seed.ctr ].dueDate = $( "#datepicker" ).val();
-					seed.store.set( index + ".dueDate", $( "#datepicker" ).val() );
+
+					seed.db.from( "active", "=", seed.array[ seed.ctr ].taskID ).patch( {dueDate: $( "#datepicker" ).val()} );
+					
+					//~ seed.store.set( index + ".dueDate", $( "#datepicker" ).val() );
 					seed.array[ seed.ctr ].deadline = "true";
-					seed.store.set( index + ".deadline", "true" );
+					//~ seed.store.set( index + ".deadline", "true" );
 					console.log( "datepicker val is " + $( "#datepicker" ).val() );
 				}
 			} );
-		}
-	},
-	startTimer: function()
-	{
-		$( "#runner" ).runner( "start" );
-		$( "#timerArrow" ).attr( "src", "img/pause.png" );
-		$( "#breakMsg" ).html( "" );
-		// icon from http://openiconlibrary.sourceforge.net/
-		// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
-	},
-	stopTimer: function()
-	{
-		'use strict';
-		var index = "";
-		$( "#runner" ).runner( "stop" );
-		$( "#timerArrow" ).attr( "src", "img/arrow-right.png" );
-		
-		// icon from http://openiconlibrary.sourceforge.net/
-		// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
-		
-		if( seed.array.length )
-		{
-			seed.array[ seed.ctr ].duration = $( "#runner" ).html();
-			index = seed.array[ seed.ctr ].taskNum;
-			seed.store.set( index + ".duration", $( "#runner" ).html() );
-		}
-	},
-	readStorage: function()
-	{
-		'use strict';
-		var taskObj = 0;
-
-		console.log( "localStorage.length is " + localStorage.length );
-		for( var i = 0; seed.array.length !== localStorage.length; i++ )
-		{
-			taskObj = seed.store.get( i );
-			if( taskObj !== null )
-			{
-				taskObj.taskNum = i;
-				console.log( "Duration for this task is " + taskObj.duration );
-				console.log( taskObj );
-
-				seed.array.push( taskObj );
-				console.log( "Item " + i + " retrieved" );
-			}
-		}
-		if( seed.array.length )
-		{
-			seed.taskNum = seed.array[ seed.array.length-1 ].taskNum+1;
-			console.log( "seed.taskNum is " + seed.taskNum );
-			seed.dueDateSort();
-		}
-	},
-	dueDateSort: function()
-	{
-		'use strict';
-		
-		// bubble sort adapted from 
-		// http://www.contentedcoder.com/2012/09/bubble-sort-algorithm-in-javascript.html
-		var len = seed.array.length-1, isSwap = true;
-		for( var i = 0; i < len; i++ )
-		{
-			isSwap = false;
-			for( var j = 0, swap, lastIndex = len - i; j < lastIndex; j++ )
-			{
-				if( Date.parse( seed.array[ j ].dueDate ) > Date.parse( seed.array[ j+1 ].dueDate ) )
-				{
-					swap = seed.array[ j ];
-					seed.array[ j ] = seed.array[ j+1 ];
-					seed.array[ j+1 ] = swap;
-					isSwap = true;
-				}
-			}
-			if( !isSwap )
-			{
-				break;
-			}
-		}
-	},
-	clear: function()
-	{
-		'use strict';
-		while( seed.array.length > 0 )
-		{
-			seed.array.pop();
-		}
-		
-		// seems to work better than Storage API's remove()
-		localStorage.clear();
-		seed.ctr = 0;
-		seed.taskNum = 0;
-		if( $( "#task" ) )
-		{
-			$( "#task" ).remove();
 		}
 	},
 	stringToMilliseconds: function( theString )
