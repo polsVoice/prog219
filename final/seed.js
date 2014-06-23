@@ -3,8 +3,13 @@ require( {
 
 var seed = {
 	schema: {
-		stores: [ {
+		stores: [ 
+		{
 			name: "active",  // store definition
+			keyPath: "taskID"
+		}, 
+		{
+			name: "completed",
 			keyPath: "taskID"
 		} ]
 	},
@@ -24,26 +29,22 @@ var seed = {
 				seed.input();
 			}
 		} );
-		$( "#retrieve" ).click( function()
-		{
-			
-		} );
-		//~ $( "#clear" ).click( seed.clear );
+		$( "#clear" ).click( seed.clear );
 		$( "#back, #forward" ).click( seed.navigate );
 		
 		// random task
-		//~ $( "#random" ).click( seed.random );
+		$( "#random" ).click( seed.random );
 		
 		// Keyboard navigation: left arrow is back, right arrow is forward
-		//~ $( document ).on( "keydown", function( event )
-		//~ {
-			//~ var keyCode = event.which;
-			//~ $( "body" ).data( "source", keyCode );
-			//~ if( keyCode === 37 || keyCode === 39 )
-			//~ {
-				//~ seed.navigate();
-			//~ }
-		//~ } );
+		$( document ).on( "keydown", function( event )
+		{
+			var keyCode = event.which;
+			$( "body" ).data( "source", keyCode );
+			if( keyCode === 37 || keyCode === 39 )
+			{
+				seed.navigate();
+			}
+		} );
 		
 		$( "#input" ).focus();
 		seed.readStorage( seed.array, function( array )
@@ -68,9 +69,7 @@ var seed = {
 				deadline: "false"
 			};
 			
-			//~ console.log( "inserting task number " + seed.taskNum + " into localStorage" );
 			console.log( newTask );
-			//~ seed.store.set( seed.taskNum, newTask );
 			var req = seed.db.put( { name: "active" }, newTask );
 			req.done( function( key )
 			{
@@ -81,14 +80,20 @@ var seed = {
 				throw e;
 			} );
 			$( "#input" ).val( "" );
-			//~ seed.array.push( newTask );
+			seed.array.push( newTask );
 			
-			//~ seed.taskNum++;
 			$( "#input" ).focus();
-			//~ seed.ctr = seed.array.length-1;
-			//~ console.log( "seed.ctr is " + seed.ctr );
-			//~ seed.taskDiv();
+			
+			seed.ctr = seed.array.length-1;
+			console.log( "seed.ctr is " + seed.ctr );
+			seed.taskDiv();
 		}
+	},
+	deleteEntry: function( id )
+	{
+		"use strict";
+		var id = parseInt( id, 10 );
+		var keys = seed.db.remove( "active", id );
 	},
 	readStorage: function( array, callback )
 	{
@@ -129,6 +134,69 @@ var seed = {
 			}
 		}
 	},
+	navigate: function()
+	{
+		'use strict';
+		seed.stopTimer();
+		
+		var btnId = this.id;
+		
+		if( $( "#delete" ).is( ":checked" ) )
+		{
+			var req = seed.db.put( { name: "completed" }, seed.array[ seed.ctr ] );
+			req.done( function( key )
+			{
+				console.log( key );
+			} );
+			req.fail( function( e )
+			{
+				throw e;
+			} );
+			
+			seed.deleteEntry( seed.array[ seed.ctr ].taskID );
+			
+			// array moves down
+			seed.array.splice( seed.ctr, 1 );
+			
+			// back button or left arrow key
+			if( btnId === "back" || $( "body" ).data( "source" ) === 37 )
+			{
+				// When splicing from an array, the elements will move down, and the current index
+				// will be pointing at the previously next element. So, the counter doesn't need to
+				// be incremented after a splice.
+				seed.forward = false;
+				seed.ctr--;
+			}
+		}
+		else
+		{
+			// forward button or right arrow key
+			if( btnId === "forward" || $( "body" ).data( "source" ) === 39 )
+			{
+				seed.forward = true;
+				seed.ctr++;
+			}
+			else
+			{
+				// If all else fails, go back. I think it's a good idea to have a default case,
+				// although I don't see how this code would ever be run.
+				seed.forward = false;
+				seed.ctr--;
+			}
+		}
+		
+		if( seed.ctr >=	seed.array.length )
+		{
+			seed.ctr = 0;
+		}
+		if( seed.ctr < 0 )
+		{
+			seed.ctr = seed.array.length-1;
+		}
+
+		seed.taskDiv();
+		$( "body" ).data( "source", 0 );
+	},
 	taskDiv: function()
 	{
 		'use strict';
@@ -157,9 +225,11 @@ var seed = {
 		if( seed.array.length )
 		{
 			$( "#task" ).append( 
-						"<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task + 				"</p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate );
+						"<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task + 			"</p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate );
 			
 			$( "#datepicker" ).val( seed.array[ seed.ctr ].dueDate );
+			
+			console.log( "deadline is " + seed.array[ seed.ctr ].deadline );
 			
 			var numDaysLeft = ( Date.parse( seed.array[ seed.ctr ].dueDate ) - Date.parse( seed.getISODate() ) ) / 86400000;
 			
@@ -245,17 +315,62 @@ var seed = {
 				onSelect: function()
 				{
 					var index = seed.array[ seed.ctr ].taskNum;
+					
 					seed.array[ seed.ctr ].dueDate = $( "#datepicker" ).val();
-
 					seed.db.from( "active", "=", seed.array[ seed.ctr ].taskID ).patch( {dueDate: $( "#datepicker" ).val()} );
 					
-					//~ seed.store.set( index + ".dueDate", $( "#datepicker" ).val() );
-					seed.array[ seed.ctr ].deadline = "true";
-					//~ seed.store.set( index + ".deadline", "true" );
+					seed.array[ seed.ctr ].deadline = "true";					
+					seed.db.from( "active", "=", seed.array[ seed.ctr ].taskID ).patch( {deadline: "true"} );
+					
 					console.log( "datepicker val is " + $( "#datepicker" ).val() );
 				}
 			} );
 		}
+	},
+	startTimer: function()
+	{
+		"use strict";
+		$( "#runner" ).runner( "start" );
+		$( "#timerArrow" ).attr( "src", "img/pause.png" );
+		$( "#breakMsg" ).html( "" );
+		// icon from http://openiconlibrary.sourceforge.net/
+		// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
+	},
+	stopTimer: function()
+	{
+		'use strict';
+		$( "#runner" ).runner( "stop" );
+		$( "#timerArrow" ).attr( "src", "img/arrow-right.png" );
+		
+		// icon from http://openiconlibrary.sourceforge.net/
+		// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
+		
+		if( seed.array.length )
+		{
+			seed.array[ seed.ctr ].duration = $( "#runner" ).html();
+			seed.db.from( "active", "=", seed.array[ seed.ctr ].taskID ).patch( {duration: $( "#runner" ).html()} );
+		}
+	},
+	clear: function()
+	{
+		'use strict';
+		while( seed.array.length > 0 )
+		{
+			seed.array.pop();
+		}
+		seed.db.clear( "active" );
+		seed.ctr = 0;
+		seed.taskNum = 0;
+		if( $( "#task" ) )
+		{
+			$( "#task" ).remove();
+		}
+	},
+	random: function()
+	{
+		'use strict';
+		seed.ctr = 1 + Math.floor( Math.random() * seed.array.length-1 );
+		seed.taskDiv();
 	},
 	stringToMilliseconds: function( theString )
 	{
