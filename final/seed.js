@@ -20,6 +20,8 @@ var seed = {
 	ctr: 0,
 	init: function()
 	{	
+		console.log( "init called!" );
+		$( "#tabs" ).tabs();
 		seed.db = new ydn.db.Storage( "seedDB", seed.schema );
 		$( "#submit" ).click( seed.input );
 		$( "#input" ).keypress( function( e )
@@ -47,7 +49,7 @@ var seed = {
 			}
 		} );
 		
-		$( "#input" ).focus();
+		// $( "#input" ).focus();
 		seed.readStorage( seed.array, function( array )
 		{
 			console.log( seed.array );
@@ -71,12 +73,6 @@ var seed = {
 				deadline: "false",
 				project: "none"
 			};
-			//~ 
-			//~ if( task.indexOf( "p:" ) !== -1 )
-			//~ {
-				//~ var index = task.indexOf( "p:" );
-				//~ 
-			//~ }
 			
 			var req = seed.db.put( { name: "active" }, newTask );
 			req.done( function( key )
@@ -101,8 +97,8 @@ var seed = {
 	deleteEntry: function( id )
 	{
 		"use strict";
-		var id = parseInt( id, 10 );
-		var keys = seed.db.remove( "active", id );
+		var taskId = parseInt( id, 10 );
+		var keys = seed.db.remove( "active", taskId );
 	},
 	readStorage: function( array, callback )
 	{
@@ -212,7 +208,7 @@ var seed = {
 		seed.taskDiv();
 		$( "body" ).data( "source", 0 );
 	},
-	taskDiv: function()
+	taskDiv: function( evt )
 	{
 		'use strict';
 		var setDirection = "";
@@ -230,7 +226,7 @@ var seed = {
 		}
 		else
 		{
-			$( "form" ).prepend( "<div id='task'></div>" );
+			$( "#taskdiv" ).prepend( "<div id='task'></div>" );
 			seed.taskDisplay();
 		}
 	},

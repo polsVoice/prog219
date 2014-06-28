@@ -7,16 +7,16 @@ form
 {
 	position: absolute;
 	width: 50%;
-	top: 50%;
+	top: 30%;
 	left: 30%;
 }
 
 #task
 {
 	background-color: cyan;
-	width: 50%;
+	width: 30%;
 	height: 10%;
-	left: 10%;
+	left: 30%;
 	position: relative;
 	border: 1px solid black;
 	border-radius: 10px;
@@ -27,9 +27,7 @@ form
 {
 	border: 1px solid black;
 	border-radius: 10px;
-	position: absolute;
-	left: 5%;
-	width: 70%;
+	position: relative;
 	padding: 2%;
 }
 
@@ -53,6 +51,15 @@ input[type=checkbox]
 #timerArrow
 {
 	margin-left: 2%;
+}
+
+#tabs
+{
+	width: 50%;
+	height: 50%;
+	position: absolute;
+	top: 60%;
+	left: 25%;
 }
 
 .overdue
