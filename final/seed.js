@@ -13,12 +13,13 @@ var seed = {
 			keyPath: "taskID"
 		} ]
 	},
-	db: "",
+	db: null,
 	array: [],
 	forward: true,
 	ctr: 0,
 	init: function()
 	{	
+		$( "#tabs" ).tabs();
 		seed.db = new ydn.db.Storage( "seedDB", seed.schema );
 		$( "#submit" ).click( seed.input );
 		$( "#input" ).keypress( function( e )
@@ -27,6 +28,8 @@ var seed = {
 			if( e.which === 13 )
 			{
 				seed.input();
+				// to prevent page reload from Enter key in text field
+				return false;
 			}
 		} );
 		$( "#clear" ).click( seed.clear );
@@ -57,10 +60,12 @@ var seed = {
 	{
 		'use strict';
 			
-		var task = $( "#input" ).val();
+		var task = $( "#input" ).val(), req = null;
+		var newTask = {};
+		
 		if( task )
 		{
-			var newTask = {
+			newTask = {
 				taskID: new Date().getTime(),
 				task: task,
 				createdDate: seed.getISODate(),
@@ -70,7 +75,7 @@ var seed = {
 			};
 			
 			console.log( newTask );
-			var req = seed.db.put( { name: "active" }, newTask );
+			req = seed.db.put( { name: "active" }, newTask );
 			req.done( function( key )
 			{
 				console.log( key );
@@ -92,8 +97,8 @@ var seed = {
 	deleteEntry: function( id )
 	{
 		"use strict";
-		var id = parseInt( id, 10 );
-		var keys = seed.db.remove( "active", id );
+		var taskId = parseInt( id, 10 );
+		var keys = seed.db.remove( "active", taskId );
 	},
 	readStorage: function( array, callback )
 	{
@@ -120,7 +125,10 @@ var seed = {
 			isSwap = false;
 			for( var j = 0, swap, lastIndex = len - i; j < lastIndex; j++ )
 			{
-				if( Date.parse( array[ j ].dueDate ) > Date.parse( array[ j+1 ].dueDate ) )
+				var curObjDate = Date.parse( array[ j ].dueDate );
+				var nextObjDate = Date.parse( array[ j+1 ].dueDate );
+				
+				if( ( curObjDate === null || curObjDate > nextObjDate ) && nextObjDate !== null )
 				{
 					swap = array[ j ];
 					array[ j ] = array[ j+1 ];
@@ -215,7 +223,7 @@ var seed = {
 		}
 		else
 		{
-			$( "form" ).prepend( "<div id='task'></div>" );
+			$( "#taskContainer" ).prepend( "<div id='task'></div>" );
 			seed.taskDisplay();
 		}
 	},
