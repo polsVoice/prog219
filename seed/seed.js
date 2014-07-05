@@ -85,11 +85,11 @@ var seed = {
 				createdDate: seed.getISODate(),
 				duration: "00:00:00",
 				dueDate: "0000-00-00",
-				deadline: "false"
+				deadline: "false",
+				project: "none"
 			};
 			
-			console.log( newTask );
-			req = seed.db.put( { name: "active" }, newTask );
+			var req = seed.db.put( { name: "active" }, newTask );
 			req.done( function( key )
 			{
 				console.log( key );
@@ -98,6 +98,7 @@ var seed = {
 			{
 				throw e;
 			} );
+			
 			$( "#input" ).val( "" );
 			seed.array.push( newTask );
 			
@@ -124,6 +125,7 @@ var seed = {
 			{
 				array.push( records[ i ] );
 			}
+			// callback must be used, because of asynchrony
 			callback( array );
 		} );
 	},
@@ -133,7 +135,7 @@ var seed = {
 		
 		// bubble sort adapted from 
 		// http://www.contentedcoder.com/2012/09/bubble-sort-algorithm-in-javascript.html
-		var len = array.length-1, isSwap = true;
+		var len = array.length-1, isSwap = true, comparisons = 0, swaps = 0;
 		for( var i = 0; i < len; i++ )
 		{
 			isSwap = false;
@@ -144,6 +146,7 @@ var seed = {
 				
 				if( ( curObjDate === null || curObjDate > nextObjDate ) && nextObjDate !== null )
 				{
+					swaps++;
 					swap = array[ j ];
 					array[ j ] = array[ j+1 ];
 					array[ j+1 ] = swap;
@@ -219,7 +222,7 @@ var seed = {
 		seed.taskDiv();
 		$( "body" ).data( "source", 0 );
 	},
-	taskDiv: function()
+	taskDiv: function( evt )
 	{
 		'use strict';
 		var setDirection = "";
@@ -246,8 +249,7 @@ var seed = {
 		'use strict';
 		if( seed.array.length )
 		{
-			$( "#task" ).append( 
-						"<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task + 			"</p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate );
+			$( "#task" ).append( "<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task + "</p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate );
 			
 			$( "#datepicker" ).val( seed.array[ seed.ctr ].dueDate );
 			
@@ -339,6 +341,7 @@ var seed = {
 					var index = seed.array[ seed.ctr ].taskNum;
 					
 					seed.array[ seed.ctr ].dueDate = $( "#datepicker" ).val();
+					// update property
 					seed.db.from( "active", "=", seed.array[ seed.ctr ].taskID ).patch( {dueDate: $( "#datepicker" ).val()} );
 					
 					seed.array[ seed.ctr ].deadline = "true";					
