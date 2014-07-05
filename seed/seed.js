@@ -16,6 +16,7 @@ var seed = {
 	db: null,
 	array: [],		// array for active tasks
 	completed: [],	// array for completed tasks
+	projects: [],
 	forward: true,
 	ctr: 0,
 	init: function()
