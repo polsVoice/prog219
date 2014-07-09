@@ -64,15 +64,6 @@ input[type=checkbox]
 	margin-left: 2%;
 }
 
-#tabs
-{
-	width: 50%;
-	height: 50%;
-	position: absolute;
-	top: 50%;
-	left: 20%;
-}
-
 .overdue
 {
 	color: red;
