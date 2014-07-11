@@ -1,6 +1,6 @@
 require( {
 	"packages": [ { "name": "ydn", "location": ".", "main": "ydn.db-iswu-core-e-qry-dev" } ] });
-// testing alias
+
 var seed = {
 	schema: {
 		stores: [ 
