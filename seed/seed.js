@@ -1,6 +1,6 @@
 require( {
 	"packages": [ { "name": "ydn", "location": ".", "main": "ydn.db-iswu-core-e-qry-dev" } ] });
-// test commit 4
+// test commit
 var seed = {
 	schema: {
 		stores: [ 
