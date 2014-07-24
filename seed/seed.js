@@ -1,6 +1,6 @@
 require( {
 	"packages": [ { "name": "ydn", "location": ".", "main": "ydn.db-iswu-core-e-qry-dev" } ] });
-// test commit 2
+
 var seed = {
 	schema: {
 		stores: [ 
@@ -27,7 +27,7 @@ var seed = {
 		$( "#input" ).keypress( function( e )
 		{
 			// Enter key saves task
-			if( e.which === 13 )
+			if ( e.which === 13 )
 			{
 				seed.input();
 				// to prevent page reload from Enter key in text field
@@ -45,7 +45,7 @@ var seed = {
 		{
 			var keyCode = event.which;
 			$( "body" ).data( "source", keyCode );
-			if( keyCode === 37 || keyCode === 39 )
+			if ( keyCode === 37 || keyCode === 39 )
 			{
 				seed.navigate();
 			}
@@ -129,23 +129,19 @@ var seed = {
 			callback( array );
 		} );
 	},
-	dueDateSort: function( array )
-	{
+	dueDateSort: function( array ){
 		'use strict';
 		
 		// bubble sort adapted from 
 		// http://www.contentedcoder.com/2012/09/bubble-sort-algorithm-in-javascript.html
 		var len = array.length-1, isSwap = true, comparisons = 0, swaps = 0;
-		for( var i = 0; i < len; i++ )
-		{
+		for( var i = 0; i < len; i++ ){
 			isSwap = false;
-			for( var j = 0, swap, lastIndex = len - i; j < lastIndex; j++ )
-			{
+			for ( var j = 0, swap, lastIndex = len - i; j < lastIndex; j++ ){
 				var curObjDate = Date.parse( array[ j ].dueDate );
 				var nextObjDate = Date.parse( array[ j+1 ].dueDate );
 				
-				if( ( curObjDate === null || curObjDate > nextObjDate ) && nextObjDate !== null )
-				{
+				if ( ( curObjDate === null || curObjDate > nextObjDate ) && nextObjDate !== null ){
 					swaps++;
 					swap = array[ j ];
 					array[ j ] = array[ j+1 ];
@@ -153,8 +149,7 @@ var seed = {
 					isSwap = true;
 				}
 			}
-			if( !isSwap )
-			{
+			if ( !isSwap ){
 				break;
 			}
 		}
@@ -166,15 +161,12 @@ var seed = {
 		
 		var btnId = this.id;
 		
-		if( $( "#delete" ).is( ":checked" ) )
-		{
+		if ( $( "#delete" ).is( ":checked" ) ){
 			var req = seed.db.put( { name: "completed" }, seed.array[ seed.ctr ] );
-			req.done( function( key )
-			{
+			req.done( function( key ){
 				console.log( key );
 			} );
-			req.fail( function( e )
-			{
+			req.fail( function( e ){
 				throw e;
 			} );
 			
@@ -184,8 +176,7 @@ var seed = {
 			seed.array.splice( seed.ctr, 1 );
 			
 			// back button or left arrow key
-			if( btnId === "back" || $( "body" ).data( "source" ) === 37 )
-			{
+			if ( btnId === "back" || $( "body" ).data( "source" ) === 37 ){
 				// When splicing from an array, the elements will move down, and the current index
 				// will be pointing at the previously next element. So, the counter doesn't need to
 				// be incremented after a splice.
@@ -193,16 +184,13 @@ var seed = {
 				seed.ctr--;
 			}
 		}
-		else
-		{
+		else {
 			// forward button or right arrow key
-			if( btnId === "forward" || $( "body" ).data( "source" ) === 39 )
-			{
+			if ( btnId === "forward" || $( "body" ).data( "source" ) === 39 ){
 				seed.forward = true;
 				seed.ctr++;
 			}
-			else
-			{
+			else {
 				// If all else fails, go back. I think it's a good idea to have a default case,
 				// although I don't see how this code would ever be run.
 				seed.forward = false;
@@ -210,25 +198,22 @@ var seed = {
 			}
 		}
 		
-		if( seed.ctr >=	seed.array.length )
-		{
+		if ( seed.ctr >= seed.array.length ){
 			seed.ctr = 0;
 		}
-		if( seed.ctr < 0 )
-		{
+		if ( seed.ctr < 0 ){
 			seed.ctr = seed.array.length-1;
 		}
 
 		seed.taskDiv();
 		$( "body" ).data( "source", 0 );
 	},
-	taskDiv: function( evt )
-	{
+	taskDiv: function( evt ){
 		'use strict';
 		var setDirection = "";
 		setDirection = seed.forward ? "left" : "right";
 		
-		if( $( "#task" ).length )
+		if ( $( "#task" ).length )
 		{
 			$( "#task" ).hide( "slide", {direction: setDirection}, 400, function()
 			{
@@ -249,7 +234,7 @@ var seed = {
 		'use strict';
 		if( seed.array.length )
 		{
-			$( "#task" ).append( "<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task + "</p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate );
+			$( "#task" ).append( "<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task + "</p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate + "</p>" );
 			
 			$( "#datepicker" ).val( seed.array[ seed.ctr ].dueDate );
 			
@@ -268,13 +253,15 @@ var seed = {
 			// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
 			var duration = seed.array[ seed.ctr ].duration;
 			var start = seed.stringToMilliseconds( duration );
+			var stop = 356400000 + 3540000 + 59000; // 99 hours, 59 mins, 59 secs
 			
 			$( "#runner" ).runner({
 				milliseconds: false,
 				startAt: start,
 				
 				// stop after 25 minutes
-				stopAt: 1500000,
+				//stopAt: 1500000,
+				stopAt: stop,
 				
 				// http://pastebin.com/WZ1BA2nD
 				format: function millisecondsToString(milliseconds) 
