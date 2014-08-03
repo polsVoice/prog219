@@ -27,8 +27,7 @@ var seed = {
 		$( "#input" ).keypress( function( e )
 		{
 			// Enter key saves task
-			if ( e.which === 13 )
-			{
+			if ( e.which === 13 ){
 				seed.input();
 				// to prevent page reload from Enter key in text field
 				return false;
@@ -41,29 +40,30 @@ var seed = {
 		$( "#random" ).click( seed.random );
 		
 		// Keyboard navigation: left arrow is back, right arrow is forward
-		$( document ).on( "keydown", function( event )
-		{
+		$( document ).on( "keydown", function( event ){
 			var keyCode = event.which;
 			$( "body" ).data( "source", keyCode );
-			if ( keyCode === 37 || keyCode === 39 )
-			{
+			if ( keyCode === 37 || keyCode === 39 ){
 				seed.navigate();
 			}
 		} );
 		
 		$( "#input" ).focus();
-		seed.readStorage( "active", seed.array, function( array )
-		{
+		$( "#projButton" ).click( function(){
+			console.log( "Button pressed" );
+			var project = $( "#projInput" ).val();
+			console.log( project );
+		} );
+		
+		seed.readStorage( "active", seed.array, function( array ){
 			console.log( "readstorage" );
 			seed.dueDateSort( array );
 			seed.taskDiv();
 		} );
 		
-		seed.readStorage( "completed", seed.completed, function( array )
-		{
+		seed.readStorage( "completed", seed.completed, function( array ){
 			var list = $( "<ul></ul>" );
-			$( array ).each( function( index, item )
-			{
+			$( array ).each( function( index, item ){
 				list.append( "<li>" + item.task + "</li>" );
 			} );
 			$( "#tab03" ).append( list );
@@ -90,12 +90,10 @@ var seed = {
 			};
 			
 			var req = seed.db.put( { name: "active" }, newTask );
-			req.done( function( key )
-			{
+			req.done( function( key ){
 				console.log( key );
 			} );
-			req.fail( function( e )
-			{
+			req.fail( function( e ){
 				throw e;
 			} );
 			
@@ -109,20 +107,16 @@ var seed = {
 			seed.taskDiv();
 		}
 	},
-	deleteEntry: function( id )
-	{
+	deleteEntry: function( id ){
 		"use strict";
 		var taskId = parseInt( id, 10 );
 		var keys = seed.db.remove( "active", taskId );
 	},
-	readStorage: function( store, array, callback )
-	{
+	readStorage: function( store, array, callback ){
 		"use strict";
-		seed.db.values( store ).done( function( records )
-		{
+		seed.db.values( store ).done( function( records ){
 			var len = records.length;
-			for( var i = 0; i < len; i++ )
-			{
+			for( var i = 0; i < len; i++ ){
 				array.push( records[ i ] );
 			}
 			// callback must be used, because of asynchrony
@@ -137,7 +131,7 @@ var seed = {
 		var len = array.length-1, isSwap = true, comparisons = 0, swaps = 0;
 		for( var i = 0; i < len; i++ ){
 			isSwap = false;
-			for ( var j = 0, swap, lastIndex = len - i; j < lastIndex; j++ ){
+			for ( var j = 0, swap = null, lastIndex = len - i; j < lastIndex; j++ ){
 				var curObjDate = Date.parse( array[ j ].dueDate );
 				var nextObjDate = Date.parse( array[ j+1 ].dueDate );
 				
