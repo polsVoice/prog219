@@ -11,6 +11,10 @@ var seed = {
 		{
 			name: "completed",
 			keyPath: "taskID"
+		},
+		{
+			name: "projects",
+			keyPath: "projID"
 		} ]
 	},
 	db: null,
@@ -19,16 +23,14 @@ var seed = {
 	projects: [],
 	forward: true,
 	ctr: 0,
-	init: function()
-	{	
+	init: function(){	
 		$( "#tabs" ).tabs();
 		seed.db = new ydn.db.Storage( "seedDB", seed.schema );
-		$( "#submit" ).click( seed.input );
-		$( "#input" ).keypress( function( e )
-		{
+		$( "#submit, #addProj" ).click( seed.input );
+
+		$( "#input, #projInput" ).keypress( function( e ){
 			// Enter key saves task
-			if ( e.which === 13 )
-			{
+			if ( e.which === 13 ){
 				seed.input();
 				// to prevent page reload from Enter key in text field
 				return false;
@@ -38,47 +40,46 @@ var seed = {
 		$( "#back, #forward" ).click( seed.navigate );
 		
 		// random task
-		$( "#random" ).click( seed.random );
+		$( "#random" ).click( function(){
+			seed.random();
+			seed.taskDiv();
+		} );
 		
 		// Keyboard navigation: left arrow is back, right arrow is forward
-		$( document ).on( "keydown", function( event )
-		{
+		$( document ).on( "keydown", function( event ){
 			var keyCode = event.which;
 			$( "body" ).data( "source", keyCode );
-			if ( keyCode === 37 || keyCode === 39 )
-			{
+			if ( keyCode === 37 || keyCode === 39 ){
 				seed.navigate();
 			}
 		} );
 		
 		$( "#input" ).focus();
-		seed.readStorage( "active", seed.array, function( array )
-		{
+		seed.readStorage( "active", seed.array, function( array ){
 			console.log( "readstorage" );
 			seed.dueDateSort( array );
 			seed.taskDiv();
 		} );
 		
-		seed.readStorage( "completed", seed.completed, function( array )
-		{
+		seed.readStorage( "completed", seed.completed, function( array ){
 			var list = $( "<ul></ul>" );
-			$( array ).each( function( index, item )
-			{
+			$( array ).each( function( index, item ){
 				list.append( "<li>" + item.task + "</li>" );
 			} );
 			$( "#tab03" ).append( list );
 		} );
 
 	},
-	input: function()
-	{
+	input: function(){
 		'use strict';
-			
-		var task = $( "#input" ).val(), req = null;
-		var newTask = {};
+		console.log( "Input" );
+		var task = $( "#input" ).val(), 
+			project = $("#projInput").val(),
+			req = null,
+			newTask = {},
+			newProject = {};
 		
-		if( task )
-		{
+		if ( task ){
 			newTask = {
 				taskID: new Date().getTime(),
 				task: task,
@@ -86,16 +87,14 @@ var seed = {
 				duration: "00:00:00",
 				dueDate: "0000-00-00",
 				deadline: "false",
-				project: "none"
+				projID: null
 			};
 			
 			var req = seed.db.put( { name: "active" }, newTask );
-			req.done( function( key )
-			{
+			req.done( function( key ){
 				console.log( key );
 			} );
-			req.fail( function( e )
-			{
+			req.fail( function( e ){
 				throw e;
 			} );
 			
@@ -108,21 +107,33 @@ var seed = {
 			console.log( "seed.ctr is " + seed.ctr );
 			seed.taskDiv();
 		}
+		else if ( project ){
+			console.log( "Project!" );
+			newProject = {
+				projID: new Date().getTime(),
+				projectName: project
+			};
+			var req = seed.db.put({name: "projects"}, newProject);
+			req.done( function( key ){
+				console.log( key );
+			} );
+			req.fail( function( e ){
+				throw e;
+			} );
+			$( "#projInput" ).val( "" );
+			$( "#projInput" ).focus();
+		}
 	},
-	deleteEntry: function( id )
-	{
+	deleteEntry: function( id ){
 		"use strict";
 		var taskId = parseInt( id, 10 );
-		var keys = seed.db.remove( "active", taskId );
+		seed.db.remove( "active", taskId );
 	},
-	readStorage: function( store, array, callback )
-	{
+	readStorage: function( store, array, callback ){
 		"use strict";
-		seed.db.values( store ).done( function( records )
-		{
+		seed.db.values( store ).done( function( records ){
 			var len = records.length;
-			for( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ){
 				array.push( records[ i ] );
 			}
 			// callback must be used, because of asynchrony
@@ -154,8 +165,7 @@ var seed = {
 			}
 		}
 	},
-	navigate: function()
-	{
+	navigate: function(){
 		'use strict';
 		seed.stopTimer();
 		
@@ -213,12 +223,11 @@ var seed = {
 		var setDirection = "";
 		setDirection = seed.forward ? "left" : "right";
 		
-		if ( $( "#task" ).length )
-		{
-			$( "#task" ).hide( "slide", {direction: setDirection}, 400, function()
-			{
+		if ( $( "#task" ).length ){
+			$( "#task" ).hide( "slide", {direction: setDirection}, 400, function(){
 				$( "#task" ).html( "" );
 				seed.taskDisplay();
+				// if it's left, change it to right; otherwise, change it to left
 				setDirection = setDirection === "left" ? "right" : "left";
 				$( "#task" ).show( "slide", {direction: setDirection}, 400 );
 			} );
@@ -229,12 +238,10 @@ var seed = {
 			seed.taskDisplay();
 		}
 	},
-	taskDisplay: function()
-	{
+	taskDisplay: function(){
 		'use strict';
-		if( seed.array.length )
-		{
-			$( "#task" ).append( "<p><input type='checkbox' name='task' id='delete' value='' />" + seed.array[ seed.ctr ].task + "</p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate + "</p>" );
+		if( seed.array.length ){
+			$( "#task" ).append( "<p><input type='checkbox' name='task' id='delete' value='' /><label for='delete'>" + seed.array[ seed.ctr ].task + "</label></p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate + "</p>" );
 			
 			$( "#datepicker" ).val( seed.array[ seed.ctr ].dueDate );
 			
@@ -242,8 +249,7 @@ var seed = {
 			
 			var numDaysLeft = ( Date.parse( seed.array[ seed.ctr ].dueDate ) - Date.parse( seed.getISODate() ) ) / 86400000;
 			
-			if( numDaysLeft <= 3 && seed.array[ seed.ctr ].deadline === "true" )
-			{
+			if( numDaysLeft <= 3 && seed.array[ seed.ctr ].deadline === "true" ){
 				$( "#reminder" ).html( "One or more tasks are due in 2 days or less!" );
 				$( "#datepicker" ).addClass( "upcoming" );
 				$( "#task p" ).addClass( "overdue" );
@@ -264,8 +270,7 @@ var seed = {
 				stopAt: stop,
 				
 				// http://pastebin.com/WZ1BA2nD
-				format: function millisecondsToString(milliseconds) 
-				{
+				format: function millisecondsToString(milliseconds) {
 					var oneHour = 3600000;
 					var oneMinute = 60000;
 					var oneSecond = 1000;
@@ -312,8 +317,7 @@ var seed = {
 					
 					return result;
 				}
-			}).on( "runnerFinish", function( evt, info )
-			{
+			}).on( "runnerFinish", function( evt, info ){
 				// Ask if they want to take a break.
 				$( "#breakMsg" ).html( "Time for a break?" );
 				$( "#runner" ).runner( "reset" );
@@ -323,8 +327,7 @@ var seed = {
 			$( "#datepicker" ).datepicker( {
 				dateFormat: "yy-mm-dd",
 				gotoCurrent: "true",
-				onSelect: function()
-				{
+				onSelect: function(){
 					var index = seed.array[ seed.ctr ].taskNum;
 					
 					seed.array[ seed.ctr ].dueDate = $( "#datepicker" ).val();
@@ -339,8 +342,7 @@ var seed = {
 			} );
 		}
 	},
-	startTimer: function()
-	{
+	startTimer: function(){
 		"use strict";
 		$( "#runner" ).runner( "start" );
 		$( "#timerArrow" ).attr( "src", "img/pause.png" );
@@ -348,8 +350,7 @@ var seed = {
 		// icon from http://openiconlibrary.sourceforge.net/
 		// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
 	},
-	stopTimer: function()
-	{
+	stopTimer: function(){
 		'use strict';
 		$( "#runner" ).runner( "stop" );
 		$( "#timerArrow" ).attr( "src", "img/arrow-right.png" );
@@ -357,48 +358,39 @@ var seed = {
 		// icon from http://openiconlibrary.sourceforge.net/
 		// under CC-by-SA http://creativecommons.org/licenses/by-sa/3.0/
 		
-		if( seed.array.length )
-		{
+		if( seed.array.length ){
 			seed.array[ seed.ctr ].duration = $( "#runner" ).html();
 			seed.db.from( "active", "=", seed.array[ seed.ctr ].taskID ).patch( {duration: $( "#runner" ).html()} );
 		}
 	},
-	clear: function()
-	{
+	clear: function(){
 		'use strict';
-		while( seed.array.length > 0 )
-		{
+		while ( seed.array.length > 0 ){
 			seed.array.pop();
 		}
 		seed.db.clear( "active" );
 		seed.db.clear( "completed" );
 		seed.ctr = 0;
 		seed.taskNum = 0;
-		if( $( "#task" ) )
-		{
+		if( $( "#task" ) ){
 			$( "#task" ).remove();
 		}
 	},
-	random: function()
-	{
+	random: function(){
 		'use strict';
 		seed.ctr = 1 + Math.floor( Math.random() * seed.array.length-1 );
-		seed.taskDiv();
 	},
-	stringToMilliseconds: function( theString )
-	{
+	stringToMilliseconds: function( theString ){
 		'use strict';
 		var theArray = theString.split( ":" );
 		var total = 0, multiplier = 3600000;
-		$( theArray ).each( function( i, val )
-		{
+		$( theArray ).each( function( i, val ){
 			total += val * multiplier;
 			multiplier /= 60;
 		} );
 		return total;
 	},
-	getISODate: function()
-	{
+	getISODate: function(){
 		'use strict';
 		var dateObj = new Date();
 		var month = dateObj.getMonth() + 1;
@@ -408,4 +400,3 @@ var seed = {
 	}
 };
 seed.init();
-// Testing SSH key
