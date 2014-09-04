@@ -14,11 +14,12 @@ form
 #tabs
 {
 	font-family: Helvetica, Arial, sans-serif;
-	width: 50%;
+	width: 53%;
 	height: 70%;
 	position: absolute;
 	left: 18%;
 	border: 1px solid black;
+    display: inline-block;
 }
 
 #task
