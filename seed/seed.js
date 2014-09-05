@@ -24,9 +24,39 @@ var seed = {
     projMenu: null,
     forward: true,
 	ctr: 0,
-	init: function(){	
+	init: function(){
+        
+        // Set up tab display and database
 		$( "#tabs" ).tabs();
-		seed.db = new ydn.db.Storage( "seedDB", seed.schema );
+        if ( !seed.db ){
+            seed.db = new ydn.db.Storage( "seedDB", seed.schema );
+        }
+        
+        seed.readStorage( "completed", seed.completed, function( array ){
+			var list = $( "<ul></ul>" );
+			$( array ).each( function( index, item ){
+				list.append( "<li>" + item.task + "</li>" );
+			} );
+			$( "#tab03" ).append( list );
+		} );
+        
+        seed.readStorage( "projects", seed.projects, function( array ){
+            if( array.length ){
+                seed.projMenu = $( "<select id='projMenu'></select>" );
+                seed.projMenu.append( "<option value='-'>-</option>" );
+                $( array ).each( function( index, item ){
+                    seed.projMenu.append( "<option value='" + item.projName + "'>" + item.projName + "</option>" );
+                    console.log( item.projName );
+                    console.log( item.projId );
+                } );
+            }
+        } );
+        
+        seed.readStorage( "active", seed.array, function( array ){
+			seed.dueDateSort( array );
+			seed.taskDiv();
+		} );
+        
 		$( "#submit, #projButton" ).click( seed.input );
 
 		$( "#input, #projInput" ).keypress( function( e ){
@@ -59,30 +89,6 @@ var seed = {
         
 		$( "#projButton" ).click( function(){
 			var project = $( "#projInput" ).val();
-		} );
-		
-		seed.readStorage( "completed", seed.completed, function( array ){
-			var list = $( "<ul></ul>" );
-			$( array ).each( function( index, item ){
-				list.append( "<li>" + item.task + "</li>" );
-			} );
-			$( "#tab03" ).append( list );
-		} );
-        
-        seed.readStorage( "projects", seed.projects, function( array ){
-            if( array.length ){
-                seed.projMenu = $( "<select></select>" );
-                $( array ).each( function( index, item ){
-                    seed.projMenu.append( "<option value=" + item.projName + ">" + item.projName + "</option>" );
-                    console.log( item.projName );
-                    console.log( item.projId );
-                } );
-            }
-        } );
-        
-        seed.readStorage( "active", seed.array, function( array ){
-			seed.dueDateSort( array );
-			seed.taskDiv();
 		} );
 	},
 	input: function(){
