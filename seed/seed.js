@@ -20,8 +20,9 @@ var seed = {
 	db: null,
 	array: [],		// array for active tasks
 	completed: [],	// array for completed tasks
-	projects: [],
-	forward: true,
+	projects: [],   // array for projects
+    projMenu: null,
+    forward: true,
 	ctr: 0,
 	init: function(){	
 		$( "#tabs" ).tabs();
@@ -57,15 +58,7 @@ var seed = {
 		$( "#input" ).focus();
         
 		$( "#projButton" ).click( function(){
-			//~ console.log( "Button pressed" );
 			var project = $( "#projInput" ).val();
-			//~ console.log( project );
-		} );
-		
-		seed.readStorage( "active", seed.array, function( array ){
-			//~ console.log( "readstorage" );
-			seed.dueDateSort( array );
-			seed.taskDiv();
 		} );
 		
 		seed.readStorage( "completed", seed.completed, function( array ){
@@ -78,15 +71,19 @@ var seed = {
         
         seed.readStorage( "projects", seed.projects, function( array ){
             if( array.length ){
-                var projMenu = $( "<select></select>" );
+                seed.projMenu = $( "<select></select>" );
                 $( array ).each( function( index, item ){
-                    projMenu.append( "<option value=" + item.projName + ">" + item.projName + "</option>" );
+                    seed.projMenu.append( "<option value=" + item.projName + ">" + item.projName + "</option>" );
                     console.log( item.projName );
                     console.log( item.projId );
                 } );
-                $( "#task" ).append( projMenu );
             }
         } );
+        
+        seed.readStorage( "active", seed.array, function( array ){
+			seed.dueDateSort( array );
+			seed.taskDiv();
+		} );
 	},
 	input: function(){
 		'use strict';
@@ -261,6 +258,10 @@ var seed = {
 		'use strict';
 		if( seed.array.length ){
 			$( "#task" ).append( "<p><input type='checkbox' name='task' id='delete' value='' /><label for='delete'>" + seed.array[ seed.ctr ].task + "</label></p><p id='breakMsg'></p><img src='img/arrow-right.png' id='timerArrow' alt='arrow' /><span id='runner'>" + seed.array[ seed.ctr ].duration + "</span><p>Due: <input type='text' id='datepicker' /></p><p>Created on: " + seed.array[ seed.ctr ].createdDate + "</p>" );
+            
+            if ( seed.projMenu !== null ){
+                $( "#task" ).append( seed.projMenu );
+            }
 			
 			$( "#datepicker" ).val( seed.array[ seed.ctr ].dueDate );
 			

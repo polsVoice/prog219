@@ -1,7 +1,7 @@
 {
   "name": "jquery.runner",
   "title": "jQuery-runner",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "A simple runner/stopwatch jQuery plugin for counting time up and down.",
   "homepage": "https://github.com/jylauril/jquery-runner",
   "main": "build/jquery.runner.js",
@@ -66,7 +66,7 @@
     "grunt-contrib-copy": "~0.5",
     "grunt-contrib-jasmine": "~0.5",
     "grunt-contrib-uglify": "~0.4",
-    "grunt-coffeelint": "0.0.8",
+    "grunt-coffeelint": "^0.0.13",
     "grunt-docco": "~0.3",
     "matchdep": "~0.3"
   }
