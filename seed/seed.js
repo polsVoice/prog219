@@ -72,9 +72,21 @@ var seed = {
 		
 		// random task
 		$( "#random" ).click( function(){
-			seed.random();
+			seed.ctr = seed.random( seed.array );
 			seed.taskDiv();
 		} );
+        
+        if ( $( "#projMenu" ) ){
+            console.log( "The projMenu exists" );
+        }
+        
+        $( "#projMenu" ).change( function(){
+            $( "#projMenu option" ).each( function(){
+               console.log( $( "projMenu" ).val() ); 
+            } );
+            //~ seed.db.from( "active", "=", seed.array[ seed.ctr ].taskId ).patch( {projId: $( "#projMenu" ).val()} );
+            //~ 
+        } );
 		
 		// Keyboard navigation: left arrow is back, right arrow is forward
 		$( document ).on( "keydown", function( event ){
@@ -111,7 +123,7 @@ var seed = {
 				projId: null
 			};
 			
-			var req = seed.db.put( { name: "active" }, newTask );
+			var req = seed.db.put( {name: "active"}, newTask );
 			req.done( function( key ){
 				console.log( key );
 			} );
@@ -290,9 +302,6 @@ var seed = {
 			$( "#runner" ).runner({
 				milliseconds: false,
 				startAt: start,
-				
-				// stop after 25 minutes
-				//stopAt: 1500000,
 				stopAt: stop,
 				
 				// http://pastebin.com/WZ1BA2nD
@@ -386,6 +395,7 @@ var seed = {
 		
 		if( seed.array.length ){
 			seed.array[ seed.ctr ].duration = $( "#runner" ).html();
+            // update time in database
 			seed.db.from( "active", "=", seed.array[ seed.ctr ].taskId ).patch( {duration: $( "#runner" ).html()} );
 		}
 	},
@@ -394,8 +404,6 @@ var seed = {
 		while ( seed.array.length > 0 ){
 			seed.array.pop();
 		}
-		//~ seed.db.clear( "active" );
-		//~ seed.db.clear( "completed" );
         seed.db.clear();
 		seed.ctr = 0;
 		seed.taskNum = 0;
@@ -403,10 +411,10 @@ var seed = {
 			$( "#task" ).remove();
 		}
 	},
-	random: function(){
-		'use strict';
-		seed.ctr = 1 + Math.floor( Math.random() * seed.array.length-1 );
-	},
+    // return random number based on array length
+    random: function( array ){
+        return 1 + Math.floor( Math.random() * array.length-1 );
+    },
 	stringToMilliseconds: function( theString ){
 		'use strict';
 		var theArray = theString.split( ":" );

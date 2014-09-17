@@ -38,17 +38,17 @@
 
 window.onload = function(){
 	var result = null;
-	test( "Async Test #1", function(){
+	test( "Async Test #1: testing getISODate", function(){
 		pause();
 		var date = null;
 		setTimeout( function(){
 			date = seed.getISODate();
-			result = date === "2014-08-09" ? true : false;
+			result = date === "2014-09-17" ? true : false;
 			assert( result, "First test completed" );
 			console.log( date );
 			resume();
 		}, 1000 );
-		test( "Async Test #2", function(){
+		test( "Async Test #2: testing stringToMilliseconds()", function(){
 			pause();
 			var testString = "06:33:21", result = null;
 			setTimeout( function(){
@@ -59,4 +59,10 @@ window.onload = function(){
 			}, 1000 );
 		} );
 	} );
+    test( "Testing random()", function(){
+        var testArr = [ 0, 1, 2, 3, 4, 5 ], num = 0;
+        num = seed.random( testArr );
+        result = ( num <= testArr.length-1 && num >= 0 ) ? true : false;
+        assert( result, "Third test completed" );
+    } );
 };
