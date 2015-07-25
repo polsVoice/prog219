@@ -14,8 +14,8 @@ var test = {
         test.assert( calculator.findPrecision( .56, 3 ) === 2, "greater precision is 2" );
         test.assert( calculator.findPrecision( 0.521455523385445, 3.232323 ) === 15, "greater precision is 15" );
         test.assert( calculator.findPrecision( -2.55, 3 ) === 2, "greater precision is 2" );
-        test.assert( calculator.findPrecision( 1, .2354 ) === 0, "greater precision is 4" );
-        //~ test.assert( calculator.findPrecision( 1, 1.1 ) === 1, 
+        test.assert( calculator.findPrecision( 1, .2354 ) === 4, "greater precision is 4" );
+        test.assert( calculator.findPrecision( 1, .5464546423132454 ) === 16, "greater precision is 16" );
     }
 }
 test.init();
