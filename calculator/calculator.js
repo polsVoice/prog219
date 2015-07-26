@@ -1,20 +1,19 @@
 var calculator = {
-    findPrecision: function( a, b )
+    findPrecision: function()
 	{
-		var precis = 0, precisA = 0, precisB = 0;
-    
-		// Make sure that they're strings so that indexOf can be used
-		a = String( a );
-		b = String( b );
-		
-		// Find precision of both operands
-		a.indexOf( "." ) !== -1 ? precisA = ( a.length - 1 ) - a.indexOf( "." ) : precisA = 0;
-		b.indexOf( "." ) !== -1 ? precisB = ( b.length - 1 ) - b.indexOf( "." ) : precisB = 0;
-		
-		// Find longer precision and return it
-		precisA > precisB ? precis = precisA : precis = precisB;
-        console.log( precis );
-		return precis;
+        var precision = 0, highestPrecision = 0;
+        
+        // copy arguments into an array
+        var nums = Array.prototype.slice.call( arguments );
+        nums.forEach( function( num ){
+            num = String( num );
+            if( num.indexOf( "." ) !== -1 ){
+                precision = num.split( "." )[ 1 ].length;
+                if ( precision > highestPrecision )
+                    highestPrecision = precision;
+            }
+        } );
+		return highestPrecision;
 	},
 	add: function( a, b )
 	{

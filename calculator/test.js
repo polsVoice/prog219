@@ -8,14 +8,13 @@ var test = {
         return li;
     },
     init: function(){
-        test.assert( calculator.findPrecision( 1, 3 ) === 0, "1, 3, greater precision is 0" );
-        test.assert( calculator.findPrecision( 1, 1.1 ) === 1, "1, 1.1, greater precision is 1" );
-        test.assert( calculator.findPrecision( 2.6, 5.4 ) === 1, "greater precision is 1" );
-        test.assert( calculator.findPrecision( .56, 3 ) === 2, "greater precision is 2" );
-        test.assert( calculator.findPrecision( 0.521455523385445, 3.232323 ) === 15, "greater precision is 15" );
-        test.assert( calculator.findPrecision( -2.55, 3 ) === 2, "greater precision is 2" );
-        test.assert( calculator.findPrecision( 1, .2354 ) === 4, "greater precision is 4" );
-        test.assert( calculator.findPrecision( 1, .5464546423132454 ) === 16, "greater precision is 16" );
+        test.assert( calculator.findPrecision( 1, 3 ) === 0, "1, 3, greatest precision is 0" );
+        test.assert( calculator.findPrecision( 1, 1.1 ) === 1, "1, 1.1, greatest precision is 1" );
+        test.assert( calculator.findPrecision( 2.6, 5.4 ) === 1, "greatest precision is 1" );
+        test.assert( calculator.findPrecision( .56, 3 ) === 2, "greatest precision is 2" );
+        test.assert( calculator.findPrecision( 0.521455523385445, 3.232323 ) === 15, "greatest precision is 15" );
+        test.assert( calculator.findPrecision( 0.52145, 3, 6.55, .77, 0.0, 2.6, -1.555555 ) === 6, "greatest precision is 6" );
+        
     }
 }
 test.init();
