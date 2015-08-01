@@ -36,6 +36,9 @@ var calculator = {
 	divide: function( a, b )
 	{
         "use strict";
-		return Math.round( ( +a / +b ) * Math.pow( 10, 7 ) ) / Math.pow( 10, 7 );
+        var precision = calculator.findPrecision( a, b );
+		var value = Math.round( ( +a / +b ) * Math.pow( 10, precision ) ) / Math.pow( 10, precision );
+        console.log( value );
+        return value;
 	}
 };
