@@ -1,4 +1,6 @@
 var calculator = {
+    inputField: $( "td" ).first(),
+    expr: [],
     findPrecision: function( a, b )
 	{
         "use strict";
@@ -40,5 +42,24 @@ var calculator = {
 		var value = Math.round( ( +a / +b ) * Math.pow( 10, precision ) ) / Math.pow( 10, precision );
         console.log( value );
         return value;
-	}
+	},
+    buildExpression: function(){
+        var inputField = calculator.inputField;
+        var inputChar = $.trim( $( this ).text() );
+        if ( inputChar === "=" ){
+            calculator.evalExpression( calculator.expr );
+        }
+        else {
+            inputField.html( inputChar );
+            calculator.expr.push( inputChar );
+        }
+    },  
+    evalExpression: function( expr ){
+        console.log( expr );
+    },
+    init: function(){
+        $( "td" ).slice( 2 ).on( "click", calculator.buildExpression );
+        console.log( "Calculator initialized!" );
+    }
 };
+calculator.init();
